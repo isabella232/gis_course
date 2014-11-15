@@ -1,0 +1,17 @@
+
+\begin{frame}[fragile,allowfrimebreaks]
+    \frametitle{Солнечная освещенность}
+    r.sunmask служит для расчета положения солнца и прогноза карты теней (алгоритм SOLPOS2, учитывает рефракцию атмосферы):
+    \begin{verbatim}
+r.sunmask -s --v aster_gdem out=dummy
+    year=2014 month=11 day=13 hour=14 minute=25
+    sec=0 timezone=+3
+    \end{verbatim}
+
+    \begin{verbatim}
+r.sunmask --v aster_gdem out=shadows
+    year=2014 month=11 day=13 hour=14 minute=25
+    sec=0 timezone=+3
+    \end{verbatim}
+\end{frame}
+

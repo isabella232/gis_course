@@ -1,0 +1,35 @@
+
+%~ \begin{frame}[fragile]
+    %~ \frametitle{Инструменты GRASS для работы с сетями}
+    %~ \begin{itemize}
+        %~ \item v.net: создание сети.
+        %~ \item v.net.iso: изодистанции
+        %~ \item v.net.path кратчайший путь
+    %~ \end{itemize}
+%~ \end{frame}
+
+% Конвертируем полигоны в линии
+% v.type roads out=roads1 type=boundary,line,centroid,point
+% v.clean input=roads1@PERMANENT type=line tool=snap,break,rmdupl,rmsa thresh=20,0,0,0 output=test --o
+%  v.category test opt=report
+%  v.edit test type=point tool=delete cat=1-400
+
+% Считаем изолинии:
+% v.net streets points=schools out=streets_net op=connect thresh=200
+% v.net.iso in=streets_net out=streets_net_iso ccats=1-1000000 nlayer=2 costs=200,400,600,800
+% v.category streets_net_iso opt=report # 5 cats
+
+% Считаем кратчайший путь между двумя узлами:
+% 1 - ID, растояние считается от узла категории 15 до узла категории 21
+% номер категории можно узнать, если включить отображение "Display category numbers" в менеджере слоев и показать категории со слоя 2 (v.net op=connect складывает присоединенные узлы во второй слой)
+% echo "1 15 21" | v.net.path streets_net out=spath
+
+
+% Linear reference system (LRS)
+% v.lrs.create создание системы
+% v.lrs.label to create stationing on LRS
+% v.lrs.segment to create points/segments from LRS
+% v.lrs.where to find the line ID
+
+
+

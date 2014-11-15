@@ -1,0 +1,58 @@
+
+\begin{frame}
+    \frametitle{PROJ4}
+    PROJ4 библиотека для работы с системами координат (используется в GRASS GIS,  MapServer,  PostGIS,  Thuban,  OGDI,  Mapnik,  TopoCad, and  OGRCoordinateTransformation и др.).
+
+    База описаний проекций EPSG (\url{http://www.epsg.org/}) хранит данные в формате PROJ4.
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Описание проекций в формате proj4}
+    Некоторые параметры:
+    \begin{itemize}
+        \item \verb!+proj! Название проекции
+        \item \verb!+lat_0! Широта начала координат
+        \item \verb!+lon_0! Осевой меридиан
+        \item \verb!+k! Масштабный коэффициент
+        \item \verb!+x! Восточное смещение
+        \item \verb!+ellps! Эллипсоид
+        \item \verb!+towgs84! Параметры перехода к WGS84
+        \item \verb!+units! Единицы измерения
+    \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Описание проекций в формате proj4}
+    Пример: описание системы координат Гаусса-Крюгера 9-й зоны на эллипсоиде Крассовского:
+    \begin{verbatim}
+    +proj=tmerc +lat_0=0 +lon_0=51 +k=1
+    +x_0=9500000 +y_0=0
+    +ellps=krass
+    +towgs84=23.92,-141.27,-80.9,-0,0.35,0.82,-0.12
+    +units=m
+    \end{verbatim}
+
+    Пример: широта/долгота на WGS84:
+    \begin{verbatim}
+    +proj=longlat +datum=WGS84
+    \end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Примеры преобразований}
+    Программа cs2cs производит преобразование координат
+    заданными в указанных системах координат.
+    \begin{verbatim}
+    cs2cs +proj=latlong +datum=NAD83
+                   +to +proj=utm +zone=10 +datum=NAD27 -r <<EOF
+             45d15'33.1"   111.5W
+             45d15.551666667N   -111d30
+             +45.25919444444    111d30'000w
+             EOF
+    \end{verbatim}
+    Будет произведено преобразование входных координат из широта/долгота на NAD83
+     в 10-ю зону системы UTM на NAD27.
+\end{frame}
+

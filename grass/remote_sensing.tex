@@ -1,0 +1,199 @@
+
+\begin{frame}
+    \frametitle{Обработка данных ДЗЗ инструментами GRASS}
+    \begin{itemize}
+        \item Здесь речь пойдет в первую очередь о данных, полученных в
+        результате аэро- и космосъемки оптических систем (фото- и сканерная съемка).
+        \item С точки зрения GRASS, согласно ее внутреннему представлению данные (аэро)космосъемки являются обычными растрами, как следствие команды обработки растровых данных широко используются для работы с данными ДЗЗ.
+        \item Существуют специальные команды (модули), разработанные именно для обработки данных ДЗЗ.
+    \end{itemize}
+\end{frame}
+
+\subsection{Импорт данных}
+\begin{frame}
+    \frametitle{Импорт данных}
+    \begin{enumerate}
+        \item Импорт снимков производится точно также, как и импорт других растровых материалов.
+        \item Основная особенность импорта данных относится к многоканальным снимкам: для некоторых модулей обработки изображений необходимо предварительно собрать изображения анализируемой сцены в группу. Это можно сделать при помощи модуля \lstinline!i.group!. К группе можно присоеденить и другие растры, не обязательно полученные в результате космо/аэросъемки.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Особенности ортокоррекции в GRASS}
+    Для выполнения ортокоррекции GRASS предоставляет следующие модули:
+    \begin{enumerate}
+        \item \lstinline!i.group!, \lstinline!i.target!: создают группу изображений, задают целевой проект/набор.
+        \item \lstinline!i.points!: позволяет указать точки для привязки изображений.
+        \item \lstinline!i.rectify!: производит трансформацию изображений.
+    \end{enumerate}
+
+    По своей сути данный инструмент --- инструмент привязки растров. Он часто используется для обработки данных аэросъемки, но плохо приспособлен для сканерных систем.
+\end{frame}
+
+
+\begin{frame}[fragile,shrink]
+    \frametitle{Радиометрическая коррекция}
+    \begin{block}{Радиометрическая коррекция}
+    При регистрации данных физические величины яркости каналов приводятся к диапазону [Q\_MIN,Q\_MAX] (преобразование L -> DN). Исходные максимальные и минимальные значения яркостей обычно приводятся в метаданных к снимку.
+
+    Обратное преобразование (DN->L) производится по формуле:
+    \begin{equation*}
+        L = \frac{LMAX - LMIN}{Q\_MAX-Q\_MIN} (DN-Q\_MIN) + LMIN
+    \end{equation*}
+    \end{block}
+    Например, для Landsat5 по третьему каналу:
+    \begin{lstlisting}
+        LMAX_BAND3 = 264.000        LMIN_BAND3 = -1.170
+    \end{lstlisting}
+    Соответственно, калибровка производится на основе калькулятора растров:
+    \begin{lstlisting}
+r.mapcalc "b3 = (264.0+1.17)*(L5_B30-1)/254 + 1.17"
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Атмосферная коррекция}
+    В GRASS есть модуль атмосферной коррекции \lstinline!i.attcor!, в котором реализован алгоритм 6S --- Second Simulation of Satellite Signal in the Solar Spectrum.
+
+    Существуют специальные модули для работы с данными Landsat:
+    \begin{itemize}
+        \item \lstinline!i.landsat.toar!: расчет отражательной способности (на верхней границы атмосферы).
+        \item \lstinline!i.landsat.dehaze!: удаление дымки (AddOns).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Отображение композитных снимков}
+    В ГИС-менеджер встоен инструмент построения RGB- и HIS-изображений на основе трех компонент цвета. Кроме того существуют специальные модули преобразования одного представления цвета в другое и повышения разрешения снимков:
+    \begin{itemize}
+        \item \lstinline!i.rgb.his!: преобразование rgb -> his.
+        \item \lstinline!i.his.rg!: преобразование his -> rgb.
+        \item \lstinline!i.fusion.brovey!: улучшение пространственного разрешения.
+    \end{itemize}
+
+    Для создания мозаик из снимков разработан специальный модуль: \lstinline!i.image.mosaic!. Ограничение модуля --- используются до 4-х снимков.
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Особенности использования методов классификации в GRASS}
+    Классификация в GRASS происходит в два этапа:
+    \begin{enumerate}
+        \item Расчет сигнатур --- характеристик классов. Классы могут быть как заданными пользователем, так и выделяться автоматически (контролируемая и неконтролируемая классификации).
+        \item Классификация неклассифицированных пикселей по сигнатурам, определенным на первом этапе.
+    \end{enumerate}
+
+    Это позволяет комбинировать различные алгоритмы построения сигнатур и различные алгоритмы классификации.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Основные методы классификации в GRASS}
+    GRASS поддерживает следующие методы классификации:
+    \begin{itemize}
+        \item Классификация на основе попиксельного радиометрического анализа:
+            \begin{itemize}
+                \item Контролируемая классификация:  \lstinline!i.cluster! (кластеризация), затем \lstinline!i.maxlik! (классификация методом максимального правдоподобия).
+                \item Неконтролируемая классификация: \lstinline!i.gensig! (неинтерактивный расчет сигнатур по заданным пользователем образцам)/\lstinline!i.class!(интерактивный расчет сигнатур и определение образцов), затем \lstinline!i.maxlik! (метод максимального правдоподобия).
+            \end{itemize}
+        \item Классификация на основе анализа геометрических и радиометрических характеристик:
+            \begin{itemize}
+                \item Контролируемая классификация:  \lstinline!i.gensigset!(неинтерактивный расчет сигнатур по заданным пользователем образцам), затем \lstinline!i.smap!(последовательная оценка апостериорного максимума).
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Пример: i.smap}
+    Рассмотрим процедуру контролируемой классификации. Для примера выберем классификацию на основе \lstinline!i.smap! данных Landsat~5. Для определенности пусть каналы снимка с 1-го по 7-й представлены растрами с названиями L1, L2,\dots, L7, а отклассифицированные образцы находятся в растре train. Тогда:
+    \begin{enumerate}
+        \item Создадим группу изображений \lstinline!landsat!:
+        \begin{lstlisting}
+i.group group=landsat subgroup=all \
+    input=L1,L2,L3,L4,L5,L6,L7
+        \end{lstlisting}
+        \item Рассчитаем сигнатуры по образцам:
+        \begin{lstlisting}
+i.gensigset trainingmap= group=landsat \
+    subgroup=all signaturefile=allsig
+        \end{lstlisting}
+        \item Произведем классификацию:
+        \begin{lstlisting}
+i.smap group=landsat subgroup=all \
+    signaturefile=allsig output=result
+        \end{lstlisting}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Обра\-бот\-ка раз\-новре\-мен\-ных данных: r.series}
+    Для агрегации информации по временной серии растров/изображений используется команда \lstinline!r.series!. Она позволяет расчитать следующие параметры:
+    \begin{itemize}
+        \item среднее значение,
+        \item медиану
+        \item моду,
+        \item минимум и максимум,
+        \item ранг (max - min),
+        \item дисперсию,
+        \item стандартное отклонение,
+        \item параметры линейной регрессии зависимости растров от времени,
+        \item \dots
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Метод главных компонент}
+    При помощи модуля \lstinline!i.pca! можно произвести трансформацию нескольких снимков по методу главных компонент. Данный метод может быть использован для:
+    \begin{itemize}
+        \item Выделения наиболее важной информации в серии снимков.
+        \item Поиска изменений на разновременных снимках.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Текстурные признаки}
+    \begin{itemize}
+        \item r.neighbours
+        \item r.texture
+    \end{itemize}
+
+\end{frame}
+
+
+% На примере данных gisconf
+
+% Контролируемая:
+% Создать вектор train
+% v.to.rast train out=train use=attr col=id
+% i.group group=landsat subgroup=all input=B10,B20,B30,B40,B50,B60,B70
+% i.gensigset trainingmap=train group=landsat subgroup=all signaturefile=allsig
+% i.smap group=landsat subgroup=all signaturefile=allsig output=result
+
+% неконтролируемая:
+% i.cluster group=landsat subgroup=all sigfile=sig_clust classes=10
+% i.maxlik group=landsat subgroup=all sigfile=sig_clust class=result_clust
+
+% Работа по текстурам
+% r.mapcalc "ph = if(photo>255, 255, photo)" # текстуры не работают с > 255 значений
+
+%~ r.texture -d inp=ph prefix=d  --o
+%~ r.texture -k inp=ph prefix=k  --o
+%~ r.texture -c inp=ph prefix=c  --o
+%~ r.texture -d inp=ph prefix=d  --o
+%~ r.texture -v inp=ph prefix=v  --o
+%~ r.texture -e inp=ph prefix=e  --o
+%~ r.texture -a inp=ph prefix=a  --o
+%~ r.neighbors --help
+%~ r.neighbors in=ph out=avg met=average
+%~ r.neighbors in=ph out=variance met=var
+%~ r.neighbors in=ph out=var met=variance
+%~ r.neighbors in=ph out=div met=diversity
+%~ r.neighbors in=ph out=range met=range
+%~ i.group textures sub=all inp=a_ASM_0,a_ASM_135,a_ASM_45,a_ASM_90,avg,c_Contr_0,c_Contr_135,c_Contr_45,c_Contr_90,d_DV_0,d_DV_135,d_DV_45,d_DV_90,div,e_Entr_0,e_Entr_135,e_Entr_45,e_Entr_90,k_Corr_0,k_Corr_135,k_Corr_45,k_Corr_90,range,v_Var_0,v_Var_135,v_Var_45,v_Var_90,var
+%~
+%~ v.to.rast in=train out=train use=attr col=id
+%~ i.gensigset trainingmap=train group=textures subgroup=all signaturefile=allsig
+%~ i.pca inp=a_ASM_0,a_ASM_135,a_ASM_45,a_ASM_90,avg,c_Contr_0,c_Contr_135,c_Contr_45,c_Contr_90,d_DV_0,d_DV_135,d_DV_45,d_DV_90,div,e_Entr_0,e_Entr_135,e_Entr_45,e_Entr_90,k_Corr_0,k_Corr_135,k_Corr_45,k_Corr_90,range,v_Var_0,v_Var_135,v_Var_45,v_Var_90,var  out=pca
+%~ i.group pca sub=tree inp=pca.1,pca.2,pca.3
+%~ i.gensigset trainingmap=train group=pca subgroup=tree signaturefile=allsig
+%~ i.smap group=pca subgroup=tree signaturefile=allsig output=result
+

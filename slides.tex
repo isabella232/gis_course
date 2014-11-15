@@ -1,0 +1,159 @@
+%\documentclass[notes,ignorenonframetext,russian,hyperref={pdftex,unicode}]{beamer}  % слайды и текст лекций
+%\documentclass[notes=only,ignorenonframetext,russian,hyperref={pdftex,unicode}]{beamer}     % только текст к лекциям
+\documentclass[ignorenonframetext,russian,hyperref={pdftex,unicode}]{beamer}        % только слайды
+\usepackage[utf8]{inputenc}
+\usepackage[T1,T2A]{fontenc}
+
+\usepackage[russian,english]{babel}
+\usepackage{beamerthemesplit}
+\usepackage{xifthen}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage{listings}
+
+%\usepackage{bibentry}
+%\nobibliography*
+%\let\newblock\relax
+
+
+\addto\captionsenglish{%
+  \renewcommand{\figurename}{Рис.}%
+}
+
+\usetheme{boxes}
+%\usetheme{CambridgeUS} %%%%%
+ %%%%%
+%\usetheme{Montpellier}
+%\usetheme{Singapore}
+
+
+%\usecolortheme{crane}
+\usecolortheme{dolphin}
+%\usecolortheme{whale}
+
+
+\title{Обзор возможностей QGIS}
+%\author{Колесов Д.А.}
+%\author{\texorpdfstring{Колесов Д.А.\newline\url{kolesov.dm@gmail.com}}{Колесов Д.А.}}
+\institute{NextGIS}
+\date{2014}
+
+
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}[allowframebreaks]
+    \frametitle{Содержание}
+    %\begin{multicols}{2}
+       \tableofcontents
+    %\end{multicols}
+\end{frame}
+
+
+
+\mode<all>
+
+\section{Общие сведения о ГИС. QGIS как пример геоинформационной системы.}
+    \subsection{Что такое ГИС.}
+    \input{introduction/intro}
+
+    \subsection{Организация данных в ГИС.}
+    \input{introduction/intro_data}
+
+    \subsection{Задачи, решаемые с помощью ГИС.}
+    \input{introduction/intro_problems}
+
+    %~ \subsection{Классификация ГИС по их функциональности.}
+    %~ \input{introduction/intro_gis_classification}
+
+    \subsection{Источники информации по ГИС и пространственным данным.}
+    \input{introduction/intro_literature}
+
+    %~ \subsection{Обзор возможностей QGIS.}
+    %~ \input{introduction/features}
+
+\section{Системы координат}
+    \subsection{Общие сведения}
+    \input{coordinates/coordinates}
+
+    \subsection{PROJ4}
+    \input{coordinates/proj4}
+
+
+\section{Векторные данные.}
+    \subsection{Распространенные форматы векторных данных.}
+    \input{vector_data/formats}
+
+    \subsection{Работа с атрибутами}
+    \input{vector_data/filters.tex}
+
+    \subsection{Инструменты ftools}
+    \input{vector_data/ftools.tex}
+
+    \section{Пространственные расширения}
+    \input{vector_data/sql.tex}
+
+
+\section{Основы обработки ДЗЗ}
+    \subsection{Излучение и ДЗЗ}
+    \input{remote_sensing/spectrum.tex}
+
+    \subsection{Предобработка данных}
+    \input{remote_sensing/preprocessing.tex}
+
+    \subsection{Классификация}
+    \input{remote_sensing/classification.tex}
+
+\section{Взаимодейсвие с GRASS}
+    \subsection{Обзор GRASS GIS}
+    \input{grass/intro.tex}
+
+    \subsection{Правка топологии на базе инструментов GRASS}
+    \input{grass/topology_grass.tex}
+
+    \subsection{Сетевой анализ в GRASS GIS}
+    \input{grass/net.tex}
+
+    \subsection{Солнечная освещенность}
+    \input{grass/illumination.tex}
+
+    \subsection{Обработка данных ДЗЗ инструментами GRASS}
+    \input{grass/remote_sensing.tex}
+
+
+
+
+
+%~
+%~ \section{QGIS Browser.}
+%~ \input{qgis_browser/qgis_browser.tex}
+
+
+\section{Практика}
+    %~ \subsection{Интерфейс QGIS}
+    %~ \input{practic/interface.tex}
+%~
+    %~ \subsection{Системы координат}
+    %~ \input{practic/coordinates.tex}
+%~
+    %~ \subsection{Стили векторных слоев}
+    %~ % Описание вкладок в свойтвах слоя с точки зрения стилизации
+    %~ \input{practic/vector_style.tex}
+
+    %~ \subsection{Инструменты ftools}
+    %~ \input{practic/ftools.tex}
+%~
+    %~ \subsection{DBMamager}
+    %~ \input{practic/dbmanager.tex}
+
+    \subsection{Построение зон доступности с использованием инструментов GRASS}
+    \input{practic/grass_accessibility.tex}
+
+
+\mode*
+
+\end{document}
+
